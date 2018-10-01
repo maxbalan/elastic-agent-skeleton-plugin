@@ -35,7 +35,8 @@ public enum Request {
     PLUGIN_SETTINGS_VALIDATE_CONFIGURATION(Constants.GO_PLUGIN_SETTINGS_PREFIX + ".validate-configuration"),
     REQUEST_STATUS_REPORT(Constants.ELASTIC_AGENT_REQUEST_PREFIX + ".status-report"),
     REQUEST_AGENT_STATUS_REPORT(Constants.ELASTIC_AGENT_REQUEST_PREFIX + ".agent-status-report"),
-    REQUEST_CAPABILITIES(Constants.ELASTIC_AGENT_REQUEST_PREFIX + ".get-capabilities");
+    REQUEST_CAPABILITIES(Constants.ELASTIC_AGENT_REQUEST_PREFIX + ".get-capabilities"),
+    REQUEST_JOB_COMPLETION(Constants.ELASTIC_AGENT_REQUEST_PREFIX + ".job-completion");
 
     private final String requestName;
 
