@@ -71,6 +71,9 @@ public class ExamplePlugin implements GoPlugin {
                     return new GetPluginConfigurationExecutor().execute();
                 case PLUGIN_SETTINGS_VALIDATE_CONFIGURATION:
                     return ValidatePluginSettings.fromJSON(request.requestBody()).executor().execute();
+                case REQUEST_JOB_COMPLETION:
+                    refreshInstances();
+                    return JobCompletionRequest.fromJSON(request.requestBody()).executor(agentInstances, pluginRequest).execute();
                 case REQUEST_STATUS_REPORT:
                     refreshInstances();
                     return new StatusReportExecutor(pluginRequest, agentInstances, ViewBuilder.instance()).execute();
