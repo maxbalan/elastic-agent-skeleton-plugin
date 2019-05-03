@@ -27,25 +27,25 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class GetViewRequestExecutorTest {
-
+public class GetElasticAgentProfileViewExecutorTest {
     @Test
     public void shouldRenderTheTemplateInJSON() throws Exception {
-        GoPluginApiResponse response = new GetViewRequestExecutor().execute();
+        GoPluginApiResponse response = new GetElasticAgentProfileViewExecutor().execute();
         assertThat(response.responseCode(), is(200));
         Map<String, String> hashSet = new Gson().fromJson(response.responseBody(), HashMap.class);
-        assertThat(hashSet, hasEntry("template", Util.readResource("/plugin-settings.template.html")));
+        assertThat(hashSet, hasEntry("template", Util.readResource("/profile.template.html")));
     }
 
     @Test
     public void allFieldsShouldBePresentInView() throws Exception {
-        String template = Util.readResource("/plugin-settings.template.html");
+        String template = Util.readResource("/profile.template.html");
 
-        for (Map.Entry<String, Field> fieldEntry : GetPluginConfigurationExecutor.FIELDS.entrySet()) {
-            assertThat(template, containsString("ng-model=\"" + fieldEntry.getKey() + "\""));
-            assertThat(template, containsString("<span class=\"form_error\" ng-show=\"GOINPUTNAME[" + fieldEntry.getKey() +
-                    "].$error.server\">{{GOINPUTNAME[" + fieldEntry.getKey() +
-                    "].$error.server}}</span>"));
+        for (Metadata field : GetElasticAgentProfileMetadataExecutor.FIELDS) {
+            assertThat(template, containsString("ng-model=\"" + field.getKey() + "\""));
+            assertThat(template, containsString("<span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[" +
+                    field.getKey() + "].$error.server}\" ng-show=\"GOINPUTNAME[" +
+                    field.getKey() + "].$error.server\">{{GOINPUTNAME[" +
+                    field.getKey() + "].$error.server}}</span>"));
         }
     }
 

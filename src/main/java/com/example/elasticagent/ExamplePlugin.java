@@ -19,6 +19,9 @@ package com.example.elasticagent;
 import com.example.elasticagent.executors.*;
 import com.example.elasticagent.requests.*;
 import com.example.elasticagent.views.ViewBuilder;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
@@ -28,60 +31,110 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.example.elasticagent.Constants.PLUGIN_IDENTIFIER;
 
 @Extension
 public class ExamplePlugin implements GoPlugin {
-
     public static final Logger LOG = Logger.getLoggerFor(ExamplePlugin.class);
+    public static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
     private PluginRequest pluginRequest;
     private AgentInstances agentInstances;
+    private Map<String, AgentInstances> clusterSpecificAgentInstances;
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor accessor) {
         pluginRequest = new PluginRequest(accessor);
         agentInstances = new ExampleAgentInstances();
+        clusterSpecificAgentInstances = new HashMap<>();
     }
 
     @Override
-    public GoPluginApiResponse handle(GoPluginApiRequest request) throws UnhandledRequestTypeException {
+    public GoPluginIdentifier pluginIdentifier() {
+        return PLUGIN_IDENTIFIER;
+    }
+
+    @Override
+    public GoPluginApiResponse handle(GoPluginApiRequest request) {
         try {
             switch (Request.fromString(request.requestName())) {
+                case REQUEST_GET_ICON:
+                    return new GetPluginIconExecutor().execute();
+
                 case REQUEST_SHOULD_ASSIGN_WORK:
-                    refreshInstances();
-                    return ShouldAssignWorkRequest.fromJSON(request.requestBody()).executor(agentInstances).execute();
+                    ShouldAssignWorkRequest shouldAssignWorkRequest = ShouldAssignWorkRequest.fromJSON(request.requestBody());
+                    refreshInstancesForCluster(shouldAssignWorkRequest.clusterProperties());
+
+                    return shouldAssignWorkRequest.executor(agentInstances).execute();
+
                 case REQUEST_CREATE_AGENT:
-                    refreshInstances();
-                    return CreateAgentRequest.fromJSON(request.requestBody()).executor(agentInstances, pluginRequest).execute();
+                    CreateAgentRequest createAgentRequest = CreateAgentRequest.fromJSON(request.requestBody());
+                    refreshInstancesForCluster(createAgentRequest.clusterProperties());
+                    AgentInstances agentInstancesForCluster = getAgentInstancesForCluster(createAgentRequest.clusterProperties());
+
+                    return createAgentRequest.executor(agentInstancesForCluster).execute();
+
                 case REQUEST_SERVER_PING:
-                    refreshInstances();
-                    return new ServerPingRequestExecutor(agentInstances, pluginRequest).execute();
-                case PLUGIN_SETTINGS_GET_VIEW:
-                    return new GetViewRequestExecutor().execute();
-                case REQUEST_GET_PROFILE_METADATA:
-                    return new GetProfileMetadataExecutor().execute();
-                case REQUEST_GET_PROFILE_VIEW:
-                    return new GetProfileViewExecutor().execute();
-                case REQUEST_VALIDATE_PROFILE:
-                    return ProfileValidateRequest.fromJSON(request.requestBody()).executor().execute();
-                case PLUGIN_SETTINGS_GET_ICON:
-                    return new GetPluginSettingsIconExecutor().execute();
-                case PLUGIN_SETTINGS_GET_CONFIGURATION:
-                    return new GetPluginConfigurationExecutor().execute();
-                case PLUGIN_SETTINGS_VALIDATE_CONFIGURATION:
-                    return ValidatePluginSettings.fromJSON(request.requestBody()).executor().execute();
+                    ServerPingRequest serverPingRequest = ServerPingRequest.fromJSON(request.requestBody());
+                    refreshInstancesForAllClusters(serverPingRequest.allClusterProfileProperties());
+
+                    return serverPingRequest.executor(clusterSpecificAgentInstances, pluginRequest).execute();
+
+                case REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA:
+                    return new GetElasticAgentProfileMetadataExecutor().execute();
+
+                case REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW:
+                    return new GetElasticAgentProfileViewExecutor().execute();
+
+                case REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE:
+                    return ValidateElasticAgentProfileRequest.fromJSON(request.requestBody()).executor().execute();
+
                 case REQUEST_JOB_COMPLETION:
-                    refreshInstances();
-                    return JobCompletionRequest.fromJSON(request.requestBody()).executor(agentInstances, pluginRequest).execute();
-                case REQUEST_STATUS_REPORT:
-                    refreshInstances();
-                    return new StatusReportExecutor(pluginRequest, agentInstances, ViewBuilder.instance()).execute();
-                case REQUEST_AGENT_STATUS_REPORT:
-                    refreshInstances();
-                    return AgentStatusReportRequest.fromJSON(request.requestBody()).executor(pluginRequest, agentInstances, ViewBuilder.instance()).execute();
+                    JobCompletionRequest jobCompletionRequest = JobCompletionRequest.fromJSON(request.requestBody());
+                    ClusterProfileProperties clusterProfileProperties = jobCompletionRequest.clusterProperties();
+                    refreshInstancesForCluster(jobCompletionRequest.clusterProperties());
+
+                    return jobCompletionRequest.executor(getAgentInstancesForCluster(clusterProfileProperties)).execute();
                 case REQUEST_CAPABILITIES:
                     return new GetCapabilitiesExecutor().execute();
+
+                case REQUEST_AGENT_STATUS_REPORT:
+                    AgentStatusReportRequest agentStatusReportRequest = AgentStatusReportRequest.fromJSON(request.requestBody());
+                    refreshInstancesForCluster(agentStatusReportRequest.clusterProperties());
+
+                    return agentStatusReportRequest.executor(getAgentInstancesForCluster(agentStatusReportRequest.clusterProperties()), ViewBuilder.instance()).execute();
+
+                case REQUEST_CLUSTER_STATUS_REPORT:
+                    ClusterStatusReportRequest clusterStatusReportRequest = ClusterStatusReportRequest.fromJSON(request.requestBody());
+                    clusterProfileProperties = clusterStatusReportRequest.getClusterProfile();
+                    refreshInstancesForCluster(clusterProfileProperties);
+
+                    return clusterStatusReportRequest.executor(clusterSpecificAgentInstances.get(clusterProfileProperties.uuid())).execute();
+
+                case REQUEST_PLUGIN_STATUS_REPORT:
+                    PluginStatusReportRequest pluginStatusReportRequest = PluginStatusReportRequest.fromJSON(request.requestBody());
+                    refreshInstancesForAllClusters(pluginStatusReportRequest.allClusterProfileProperties());
+                    return pluginStatusReportRequest.executor(clusterSpecificAgentInstances, ViewBuilder.instance()).execute();
+
+                case REQUEST_GET_CLUSTER_PROFILE_METADATA:
+                    return new GetClusterProfileMetadataExecutor().execute();
+
+                case REQUEST_GET_CLUSTER_PROFILE_VIEW:
+                    return new GetClusterProfileViewRequestExecutor().execute();
+
+                case REQUEST_VALIDATE_CLUSTER_PROFILE:
+                    return ClusterProfileValidateRequest.fromJSON(request.requestBody()).executor().execute();
+
+                case REQUEST_CLUSTER_PROFILE_CHANGED:
+                    return ClusterProfileChangedRequest.fromJSON(request.requestBody()).executor(clusterSpecificAgentInstances).execute();
+
+                case REQUEST_MIGRATE_CONFIGURATION:
+                    return MigrateConfigPayload.fromJSON(request.requestBody()).executor(clusterSpecificAgentInstances).execute();
+
                 default:
                     throw new UnhandledRequestTypeException(request.requestName());
             }
@@ -90,17 +143,19 @@ public class ExamplePlugin implements GoPlugin {
         }
     }
 
-    private void refreshInstances() {
-        try {
-            agentInstances.refreshAll(pluginRequest);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    private void refreshInstancesForAllClusters(List<ClusterProfileProperties> listOfClusterProfileProperties) throws Exception {
+        for (ClusterProfileProperties clusterProfileProperties : listOfClusterProfileProperties) {
+            refreshInstancesForCluster(clusterProfileProperties);
         }
     }
 
-    @Override
-    public GoPluginIdentifier pluginIdentifier() {
-        return PLUGIN_IDENTIFIER;
+    private void refreshInstancesForCluster(ClusterProfileProperties clusterProfileProperties) throws Exception {
+        AgentInstances agentInstances = getAgentInstancesForCluster(clusterProfileProperties);
+        agentInstances.refreshAll(clusterProfileProperties);
+        clusterSpecificAgentInstances.put(clusterProfileProperties.uuid(), agentInstances);
     }
 
+    private AgentInstances getAgentInstancesForCluster(ClusterProfileProperties clusterProfileProperties) {
+        return clusterSpecificAgentInstances.get(clusterProfileProperties.uuid());
+    }
 }

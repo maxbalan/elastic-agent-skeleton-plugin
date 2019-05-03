@@ -29,9 +29,8 @@ public interface Constants {
 
     // The extension point API version that this plugin understands
     String ELASTIC_PROCESSOR_API_VERSION = "1.0";
-    String PLUGIN_SETTINGS_PROCESSOR_API_VERSION = "1.0";
     String SERVER_INFO_PROCESSOR_API_VERSION = "1.0";
-    String EXTENSION_API_VERSION = "4.0";
+    String EXTENSION_API_VERSION = "5.0";
 
     // the identifier of this plugin
     GoPluginIdentifier PLUGIN_IDENTIFIER = new GoPluginIdentifier(EXTENSION_TYPE, Collections.singletonList(EXTENSION_API_VERSION));

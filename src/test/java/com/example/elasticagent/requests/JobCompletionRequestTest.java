@@ -24,12 +24,12 @@ import static java.util.Collections.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class CreateAgentRequestTest {
+public class JobCompletionRequestTest {
 
     @Test
-    public void shouldDeserializeFromJSON() throws Exception {
+    public void shouldDeserializeFromJSON() {
         String json = "{\n" +
-                "  \"auto_register_key\": \"auto-registration-key\",\n" +
+                "  \"elastic_agent_id\": \"ea1\",\n" +
                 "  \"elastic_agent_profile_properties\": {\n" +
                 "    \"Image\": \"alpine:latest\"\n" +
                 "  },\n" +
@@ -40,7 +40,6 @@ public class CreateAgentRequestTest {
                 "    \"api_key\": \"test-api-key\",\n" +
                 "    \"api_url\": \"https://aws.api.com/api\"\n" +
                 "  },\n" +
-                "  \"environment\": \"test-env\",\n" +
                 "  \"job_identifier\": {\n" +
                 "    \"pipeline_name\": \"up42\",\n" +
                 "    \"pipeline_label\": \"Test\",\n" +
@@ -61,11 +60,10 @@ public class CreateAgentRequestTest {
                 null
         );
 
-        CreateAgentRequest request = CreateAgentRequest.fromJSON(json);
-        assertThat(request.autoRegisterKey(), equalTo("auto-registration-key"));
-        assertThat(request.environment(), equalTo("test-env"));
-
+        JobCompletionRequest request = JobCompletionRequest.fromJSON(json);
+        assertThat(request.getElasticAgentId(), equalTo("ea1"));
         assertThat(request.profileProperties(), Matchers.equalTo(singletonMap("Image", "alpine:latest")));
         assertThat(request.clusterProperties(), Matchers.equalTo(expectedClusterProperties));
+        assertThat(request.jobIdentifier().represent(), Matchers.equalTo("up42/2/up42_stage/10/up42_job"));
     }
 }

@@ -35,38 +35,37 @@ public interface AgentInstances<T> {
      * <code>autoregister.properties</code> file.
      *
      * @param request   the request object
-     * @param settings  the plugin settings object
      */
-    T create(CreateAgentRequest request, PluginSettings settings) throws Exception;
+    T create(CreateAgentRequest request) throws Exception;
 
     /**
      * This message is sent when the plugin needs to terminate the agent instance.
      *
      * @param agentId  the elastic agent id
-     * @param settings the plugin settings object
+     * @param clusterProfile the plugin cluster profile properties object
      */
-    void terminate(String agentId, PluginSettings settings) throws Exception;
+    void terminate(String agentId, ClusterProfileProperties clusterProfile) throws Exception;
 
     /**
      * This message is sent from the {@link com.example.elasticagent.executors.ServerPingRequestExecutor}
      * to terminate instances that did not register with the server after a timeout. The timeout may be configurable and
-     * set via the {@link PluginSettings} instance that is passed in.
+     * set via the {@link ClusterProfileProperties} instance that is passed in.
      *
-     * @param settings the plugin settings object
+     * @param clusterProfile the plugin clusterProfile object
      * @param agents   the list of all the agents
      */
-    void terminateUnregisteredInstances(PluginSettings settings, Agents agents) throws Exception;
+    void terminateUnregisteredInstances(ClusterProfileProperties clusterProfile, Agents agents) throws Exception;
 
     /**
      * This message is sent from the {@link com.example.elasticagent.executors.ServerPingRequestExecutor}
      * to filter out any new agents, that have registered before the timeout period. The timeout may be configurable and
-     * set via the {@link PluginSettings} instance that is passed in.
+     * set via the {@link ClusterProfileProperties} instance that is passed in.
      *
-     * @param settings the plugin settings object
+     * @param clusterProfile the plugin clusterProfile object
      * @param agents   the list of all the agents
-     * @return a list of agent instances which were created after {@link PluginSettings#getAutoRegisterPeriod()} ago.
+     * @return a list of agent instances which were created after {@link ClusterProfileProperties#getAutoRegisterPeriod()} ago.
      */
-    Agents instancesCreatedAfterTimeout(PluginSettings settings, Agents agents);
+    Agents instancesCreatedAfterTimeout(ClusterProfileProperties clusterProfile, Agents agents);
 
     /**
      * This message is sent after plugin initialization time so that the plugin may connect to the cloud provider
@@ -74,9 +73,9 @@ public interface AgentInstances<T> {
      * This call should be should ideally remember if the agent instances are refreshed, and do nothing if instances
      * were previously refreshed.
      *
-     * @param pluginRequest the plugin request object
+     * @param clusterProfile the cluster profile properties
      */
-    void refreshAll(PluginRequest pluginRequest) throws Exception;
+    void refreshAll(ClusterProfileProperties clusterProfile) throws Exception;
 
     /**
      * This
@@ -95,18 +94,18 @@ public interface AgentInstances<T> {
 
     /**
      * Get the status report from the agents
-     * @param pluginSettings the plugin settings object
+     * @param clusterProfile the cluster properties object
      * @return A StatusReport object
      * @throws Exception
      */
-    StatusReport getStatusReport(PluginSettings pluginSettings) throws Exception;
+    StatusReport getStatusReport(ClusterProfileProperties clusterProfile) throws Exception;
 
     /**
      * Get the status report of an agent instance
-     * @param pluginSettings The plugin settings object
+     * @param clusterProfile The cluster profile properties object
      * @param agentInstance The agent instance
      * @return An AgentStatusReport object
      */
-    AgentStatusReport getAgentStatusReport(PluginSettings pluginSettings, T agentInstance);
+    AgentStatusReport getAgentStatusReport(ClusterProfileProperties clusterProfile, T agentInstance);
 }
 

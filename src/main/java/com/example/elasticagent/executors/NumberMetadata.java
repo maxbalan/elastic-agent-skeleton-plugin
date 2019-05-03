@@ -17,35 +17,21 @@
 package com.example.elasticagent.executors;
 
 
-import com.example.elasticagent.utils.Size;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+public class NumberMetadata extends Metadata {
 
-public class MemoryMetadata extends Metadata {
-
-    public MemoryMetadata(String key, boolean required) {
-        super(key, key, required, false);
+    public NumberMetadata(String key, String displayName, boolean required) {
+        super(key, displayName, required, false);
     }
 
     @Override
     protected String doValidate(String input) {
-        List<String> errors = new ArrayList<>(Arrays.asList(super.doValidate(input)));
-
-        try {
-            Size.parse(input);
-        } catch (Exception e) {
-            errors.add(e.getMessage());
+        if (isRequired() || !isBlank(input)) {
+            if (isBlank(input) || Integer.parseInt(input) < 0) {
+                return this.displayName + " must be a positive integer.";
+            }
         }
-
-        errors.removeAll(Collections.singleton(null));
-
-        if (errors.isEmpty()) {
-            return null;
-        }
-        return StringUtils.join(errors, ". ");
+        return null;
     }
 }

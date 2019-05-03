@@ -16,10 +16,7 @@
 
 package com.example.elasticagent.requests;
 
-import com.example.elasticagent.Agent;
-import com.example.elasticagent.AgentInstances;
-import com.example.elasticagent.ExampleInstance;
-import com.example.elasticagent.RequestExecutor;
+import com.example.elasticagent.*;
 import com.example.elasticagent.executors.ShouldAssignWorkRequestExecutor;
 import com.example.elasticagent.models.JobIdentifier;
 import com.google.gson.FieldNamingPolicy;
@@ -36,13 +33,16 @@ public class ShouldAssignWorkRequest {
     private Agent agent;
     private String environment;
     private JobIdentifier jobIdentifier;
-    private Map<String, String> properties;
+    private Map<String, String> elasticAgentProfileProperties;
+    private ClusterProfileProperties clusterProfileProperties;
 
-    public ShouldAssignWorkRequest(Agent agent, String environment, JobIdentifier jobIdentifier, Map<String, String> properties) {
+
+    public ShouldAssignWorkRequest(Agent agent, String environment, JobIdentifier jobIdentifier, Map<String, String> elasticAgentProfileProperties, ClusterProfileProperties clusterProfileProperties) {
         this.agent = agent;
         this.environment = environment;
         this.jobIdentifier = jobIdentifier;
-        this.properties = properties;
+        this.elasticAgentProfileProperties = elasticAgentProfileProperties;
+        this.clusterProfileProperties = clusterProfileProperties;
     }
 
     public ShouldAssignWorkRequest() {
@@ -60,8 +60,12 @@ public class ShouldAssignWorkRequest {
         return jobIdentifier;
     }
 
-    public Map<String, String> properties() {
-        return properties;
+    public Map<String, String> profileProperties() {
+        return elasticAgentProfileProperties;
+    }
+
+    public ClusterProfileProperties clusterProperties() {
+        return clusterProfileProperties;
     }
 
     public static ShouldAssignWorkRequest fromJSON(String json) {

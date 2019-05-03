@@ -18,19 +18,20 @@ package com.example.elasticagent.executors;
 
 import com.example.elasticagent.RequestExecutor;
 import com.example.elasticagent.utils.Util;
+import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-public class GetViewRequestExecutor implements RequestExecutor {
+public class GetPluginIconExecutor implements RequestExecutor {
     private static final Gson GSON = new Gson();
 
     @Override
     public GoPluginApiResponse execute() throws Exception {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("template", Util.readResource("/plugin-settings.template.html"));
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(200, GSON.toJson(jsonObject));
-        return defaultGoPluginApiResponse;
+        jsonObject.addProperty("content_type", "image/svg+xml");
+        jsonObject.addProperty("data", BaseEncoding.base64().encode(Util.readResourceBytes("/plugin-icon.svg")));
+        return DefaultGoPluginApiResponse.success(GSON.toJson(jsonObject));
     }
 }

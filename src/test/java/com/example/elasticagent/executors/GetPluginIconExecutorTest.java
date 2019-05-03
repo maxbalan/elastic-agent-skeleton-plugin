@@ -19,23 +19,28 @@ package com.example.elasticagent.executors;
 import com.example.elasticagent.utils.Util;
 import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class GetPluginSettingsIconExecutorTest {
+public class GetPluginIconExecutorTest {
 
     @Test
     public void rendersIconInBase64() throws Exception {
-        GoPluginApiResponse response = new GetPluginSettingsIconExecutor().execute();
-        HashMap<String, String> hashMap = new Gson().fromJson(response.responseBody(), HashMap.class);
-        assertThat(hashMap.size(), is(2));
-        assertThat(hashMap.get("content_type"), is("image/svg+xml"));
-        System.out.println("hashMap = " + hashMap.get("data"));
-        assertThat(Util.readResourceBytes("/plugin-icon.svg"), is(BaseEncoding.base64().decode(hashMap.get("data"))));
+        GoPluginApiResponse response = new GetPluginIconExecutor().execute();
+        Type type = new TypeToken<Map<String, String>>() {
+        }.getType();
+        Map<String, String> map = new Gson().fromJson(response.responseBody(),
+                type);
+        assertThat(map.size(), is(2));
+        assertThat(map.get("content_type"), is("image/svg+xml"));
+        System.out.println("hashMap = " + map.get("data"));
+        assertThat(Util.readResourceBytes("/plugin-icon.svg"), is(BaseEncoding.base64().decode(map.get("data"))));
     }
 }

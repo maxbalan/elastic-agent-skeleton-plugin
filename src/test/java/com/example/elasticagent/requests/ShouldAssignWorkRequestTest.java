@@ -17,10 +17,11 @@
 package com.example.elasticagent.requests;
 
 import com.example.elasticagent.Agent;
+import com.example.elasticagent.ClusterProfileProperties;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,16 +39,33 @@ public class ShouldAssignWorkRequestTest {
                 "    \"build_state\": \"Idle\",\n" +
                 "    \"config_state\": \"Enabled\"\n" +
                 "  },\n" +
-                "  \"properties\": {\n" +
-                "    \"property_name\": \"property_value\"\n" +
+                "  \"elastic_agent_profile_properties\": {\n" +
+                "    \"property_name1\": \"property_value1\"\n" +
+                "  },\n" +
+                "  \"cluster_profile_properties\": {\n" +
+                "    \"go_server_url\": \"https://localhost:8154/go\",\n" +
+                "    \"auto_register_timeout\": \"20m\",\n" +
+                "    \"api_user\": \"test\",\n" +
+                "    \"api_key\": \"test-api-key\",\n" +
+                "    \"api_url\": \"https://aws.api.com/api\"\n" +
                 "  }\n" +
                 "}";
+
+        ClusterProfileProperties expectedClusterProperties = new ClusterProfileProperties(
+                "https://localhost:8154/go",
+                "20m",
+                "test",
+                "test-api-key",
+                "https://aws.api.com/api",
+                null
+        );
 
         ShouldAssignWorkRequest request = ShouldAssignWorkRequest.fromJSON(json);
         assertThat(request.environment(), equalTo("prod"));
         assertThat(request.agent(), equalTo(new Agent("42", Agent.AgentState.Idle, Agent.BuildState.Idle, Agent.ConfigState.Enabled)));
-        HashMap<String, String> expectedProperties = new HashMap<>();
-        expectedProperties.put("property_name", "property_value");
-        assertThat(request.properties(), Matchers.<Map<String, String>>equalTo(expectedProperties));
+        Map<String, String> expectedProfileProperties = Collections.singletonMap("property_name1", "property_value1");
+
+        assertThat(request.profileProperties(), Matchers.equalTo(expectedProfileProperties));
+        assertThat(request.clusterProperties(), Matchers.equalTo(expectedClusterProperties));
     }
 }

@@ -14,33 +14,24 @@
  * limitations under the License.
  */
 
-package com.example.elasticagent.requests;
+package com.example.elasticagent.executors;
 
 import com.example.elasticagent.RequestExecutor;
-import com.example.elasticagent.executors.ProfileValidateRequestExecutor;
+import com.example.elasticagent.utils.Util;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import java.util.Map;
-
-public class ProfileValidateRequest {
-
+public class GetElasticAgentProfileViewExecutor implements RequestExecutor {
     private static final Gson GSON = new Gson();
-    private Map<String, String> properties;
 
-    public ProfileValidateRequest(Map<String, String> properties) {
-        this.properties = properties;
+    @Override
+    public GoPluginApiResponse execute() throws Exception {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("template", Util.readResource("/profile.template.html"));
+        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(200, GSON.toJson(jsonObject));
+        return defaultGoPluginApiResponse;
     }
 
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public static ProfileValidateRequest fromJSON(String json) {
-        return new ProfileValidateRequest(GSON.fromJson(json, Map.class));
-    }
-
-    public RequestExecutor executor() {
-        return new ProfileValidateRequestExecutor(this);
-    }
 }

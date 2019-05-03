@@ -25,10 +25,10 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetProfileMetadataExecutor implements RequestExecutor {
+public class GetElasticAgentProfileMetadataExecutor implements RequestExecutor {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    public static final Metadata IMAGE = new Metadata("Image", true, false);
+    public static final Metadata IMAGE = new Metadata("Image", "Image", true, false);
     public static final Metadata MAX_MEMORY = new MemoryMetadata("MaxMemory", false);
 
     public static final List<Metadata> FIELDS = new ArrayList<>();

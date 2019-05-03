@@ -17,7 +17,6 @@
 package com.example.elasticagent.executors;
 
 import com.example.elasticagent.AgentInstances;
-import com.example.elasticagent.PluginRequest;
 import com.example.elasticagent.RequestExecutor;
 import com.example.elasticagent.requests.CreateAgentRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -25,18 +24,16 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 public class CreateAgentRequestExecutor implements RequestExecutor {
     private final AgentInstances agentInstances;
-    private final PluginRequest pluginRequest;
     private final CreateAgentRequest request;
 
-    public CreateAgentRequestExecutor(CreateAgentRequest request, AgentInstances agentInstances, PluginRequest pluginRequest) {
+    public CreateAgentRequestExecutor(CreateAgentRequest request, AgentInstances agentInstances) {
         this.request = request;
         this.agentInstances = agentInstances;
-        this.pluginRequest = pluginRequest;
     }
 
     @Override
     public GoPluginApiResponse execute() throws Exception {
-        agentInstances.create(request, pluginRequest.getPluginSettings());
+        agentInstances.create(request);
         return new DefaultGoPluginApiResponse(200);
     }
 
