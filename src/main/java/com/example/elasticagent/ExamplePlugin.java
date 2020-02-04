@@ -61,7 +61,8 @@ public class ExamplePlugin implements GoPlugin {
     @Override
     public GoPluginApiResponse handle(GoPluginApiRequest request) {
         try {
-            LOG.info("GOT REQUESTS: [ {} ]", request);
+            LOG.info(">>>>>>>>>> REQUEST HEADERS: [ {} ]", request.requestHeaders());
+            LOG.info(">>>>>>>>>> REQUEST BODY: [ {} ]", request.requestBody());
 
             switch (Request.fromString(request.requestName())) {
                 case REQUEST_GET_ICON:
