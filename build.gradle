@@ -111,7 +111,7 @@ jar {
     into "lib/"
   }
 
-  assemble.dependsOn([clean, test])
+  assemble.dependsOn([clean/*, test*/])
   assemble.finalizedBy 'copyJar'
 
   task copyJar(type: Copy) {

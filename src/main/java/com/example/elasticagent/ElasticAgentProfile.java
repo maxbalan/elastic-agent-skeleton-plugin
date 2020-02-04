@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ package com.example.elasticagent;
 import java.util.HashMap;
 import java.util.Objects;
 
-import com.google.common.base.MoreObjects;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ClusterProfile {
-    public static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                                                     .excludeFieldsWithoutExposeAnnotation()
-                                                     .create();
+public class ElasticAgentProfile {
+    public static final Gson GSON = new GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
 
     @Expose
     @SerializedName("id")
@@ -40,17 +40,15 @@ public class ClusterProfile {
     private String pluginId;
 
     @Expose
+    @SerializedName("cluster_profile_id")
+    private String clusterProfileId;
+
+    @Expose
     @SerializedName("properties")
-    private ClusterProfileProperties properties;
+    private HashMap<String, String> properties;
 
-    public ClusterProfile(String id, String pluginId, PluginSettings pluginSettings) {
-        this.id = id;
-        this.pluginId = pluginId;
-        setClusterProfileProperties(pluginSettings);
-    }
-
-    public static ClusterProfile fromJSON(String json) {
-        return GSON.fromJson(json, ClusterProfile.class);
+    public static ElasticAgentProfile fromJSON(String json) {
+        return GSON.fromJson(json, ElasticAgentProfile.class);
     }
 
     public String getId() {
@@ -61,7 +59,11 @@ public class ClusterProfile {
         return pluginId;
     }
 
-    public ClusterProfileProperties getProperties() {
+    public String getClusterProfileId() {
+        return clusterProfileId;
+    }
+
+    public HashMap<String, String> getProperties() {
         return properties;
     }
 
@@ -69,32 +71,41 @@ public class ClusterProfile {
         this.id = id;
     }
 
-    public void setClusterProfileProperties(PluginSettings pluginSettings) {
-        this.properties = ClusterProfileProperties.fromConfiguration(GSON.fromJson(GSON.toJson(pluginSettings), HashMap.class));
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
+    }
+
+    public void setClusterProfileId(String clusterProfileId) {
+        this.clusterProfileId = clusterProfileId;
+    }
+
+    public void setProperties(HashMap<String, String> properties) {
+        this.properties = properties;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClusterProfile that = (ClusterProfile) o;
+        ElasticAgentProfile that = (ElasticAgentProfile) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(pluginId, that.pluginId) &&
+                Objects.equals(clusterProfileId, that.clusterProfileId) &&
                 Objects.equals(properties, that.properties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pluginId, properties);
+        return Objects.hash(id, pluginId, clusterProfileId, properties);
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("id", this.id)
-                          .add("pluginId", this.pluginId)
-                          .add("properties", this.properties)
-                          .toString();
+        return "ElasticAgentProfile{" +
+                "id='" + id + '\'' +
+                ", pluginId='" + pluginId + '\'' +
+                ", clusterProfileId='" + clusterProfileId + '\'' +
+                ", properties=" + properties +
+                '}';
     }
-
 }

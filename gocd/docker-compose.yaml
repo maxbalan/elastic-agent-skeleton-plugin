@@ -11,6 +11,7 @@ services:
     ports:
       - 8153-8154:8153-8154
     environment:
+      - GOCD_PLUGIN_INSTALL_docker-elastic-agent=https://github.com/gocd-contrib/docker-elastic-agents-plugin/releases/download/v3.0.0-222/docker-elastic-agents-3.0.0-222.jar
       - GOCD_PLUGIN_INSTALL_elastic-agent-skeleton-plugin=https://github.com/maxbalan/elastic-agent-skeleton-plugin/raw/master/target/elastic-agent-skeleton-plugin-1.jar
 
 networks:
