@@ -122,6 +122,8 @@ jar {
   }
 
   task release(type: Task) {
-    dependsOn([clean, assemble])
   }
+
+  release.dependsOn([clean, assemble])
+
 }
