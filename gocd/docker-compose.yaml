@@ -10,31 +10,8 @@ services:
       - backend
     ports:
       - 8153-8154:8153-8154
-#    volumes:
-#      - ./server/go-server-start.sh:/docker-entrypoint.d/start.sh
     environment:
-      - GOCD_PLUGIN_INSTALL_test-plugin=https://github.com/maxbalan/elastic-agent-skeleton-plugin/tree/master/target/elastic-agent-skeleton-plugin-0.2-SNAPSHOT.jar
-      - AGENT_AUTO_REGISTER_KEY=12asd2s1d2s1ds2
-
-#  agent1:
-#    image: gocd/gocd-agent-ubuntu-18.04:v20.1.0
-#    restart: unless-stopped
-#    networks:
-#      - backend
-#    depends_on:
-#      - server
-#    environment:
-#      - GO_SERVER_URL=https://server:8154/go
-#
-#  agent2:
-#    image: gocd/gocd-agent-ubuntu-18.04:v20.1.0
-#    restart: unless-stopped
-#    networks:
-#      - backend
-#    depends_on:
-#      - server
-#    environment:
-#      - GO_SERVER_URL=https://server:8154/go
+      - GOCD_PLUGIN_INSTALL_elastic-agent-skeleton-plugin=https://github.com/maxbalan/elastic-agent-skeleton-plugin/raw/master/target/elastic-agent-skeleton-plugin-1.jar
 
 networks:
   backend:
