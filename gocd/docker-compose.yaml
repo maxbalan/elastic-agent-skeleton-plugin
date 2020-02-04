@@ -13,7 +13,7 @@ services:
 #    volumes:
 #      - ./server/go-server-start.sh:/docker-entrypoint.d/start.sh
     environment:
-      - GOCD_PLUGIN_INSTALL_test-plugin=../build/libs/elastic-agent-skeleton-plugin-0.2-SNAPSHOT.jar
+      - GOCD_PLUGIN_INSTALL_test-plugin=https://github.com/maxbalan/elastic-agent-skeleton-plugin/tree/master/target/elastic-agent-skeleton-plugin-0.2-SNAPSHOT.jar
       - AGENT_AUTO_REGISTER_KEY=12asd2s1d2s1ds2
 
 #  agent1:

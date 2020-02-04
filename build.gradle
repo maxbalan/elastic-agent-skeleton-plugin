@@ -22,7 +22,7 @@ version = '0.2-SNAPSHOT'
 // these values that go into plugin.xml
 // TODO: change these
 project.ext.pluginDesc = [
-    id         : 'test-plugin',
+    id         : 'com.example.elasticagent',
     version    : project.version,
     goCdVersion: '19.3.0',
     name       : 'Example Elastic Agent Plugin',
@@ -109,5 +109,19 @@ test {
 jar {
   from(configurations.compile) {
     into "lib/"
+  }
+
+  assemble.finalizedBy 'copyJar'
+
+  task copyJar(type: Copy) {
+    from('build/libs') {
+      include '*.jar'
+    }
+
+    into 'target/'
+  }
+
+  task release(type: Task) {
+    dependsOn([clean, assemble])
   }
 }
