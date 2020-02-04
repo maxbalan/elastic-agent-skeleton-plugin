@@ -136,6 +136,10 @@ public class ExamplePlugin implements GoPlugin {
                     return ClusterProfileChangedRequest.fromJSON(request.requestBody()).executor(clusterSpecificAgentInstances).execute();
 
                 case REQUEST_MIGRATE_CONFIGURATION:
+                    GoPluginApiResponse response = MigrateConfigPayload.fromJSON(request.requestBody()).executor(clusterSpecificAgentInstances).execute();
+                    LOG.info(">>>>>> RESPONSE CODE [ {} ]", response.responseCode());
+                    LOG.info(">>>>>> RESPONSE BODY [ {} ]", response.responseBody());
+                    LOG.info(">>>>>> RESPONSE HEADERS [ {} ]", response.responseHeaders());
                     return MigrateConfigPayload.fromJSON(request.requestBody()).executor(clusterSpecificAgentInstances).execute();
 
                 default:
