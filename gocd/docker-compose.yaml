@@ -1,0 +1,47 @@
+version: '3.7'
+#https://docs.docker.com/compose/compose-file/compose-file-v2/#ipv4-address-ipv6-address 
+
+services:
+  server:
+    image: gocd/gocd-server:v20.1.0
+#    build: ./server
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - 8153-8154:8153-8154
+#    volumes:
+#      - ./server/go-server-start.sh:/docker-entrypoint.d/start.sh
+    environment:
+      - GOCD_PLUGIN_INSTALL_test-plugin=../build/libs/elastic-agent-skeleton-plugin-0.2-SNAPSHOT.jar
+      - AGENT_AUTO_REGISTER_KEY=12asd2s1d2s1ds2
+
+#  agent1:
+#    image: gocd/gocd-agent-ubuntu-18.04:v20.1.0
+#    restart: unless-stopped
+#    networks:
+#      - backend
+#    depends_on:
+#      - server
+#    environment:
+#      - GO_SERVER_URL=https://server:8154/go
+#
+#  agent2:
+#    image: gocd/gocd-agent-ubuntu-18.04:v20.1.0
+#    restart: unless-stopped
+#    networks:
+#      - backend
+#    depends_on:
+#      - server
+#    environment:
+#      - GO_SERVER_URL=https://server:8154/go
+
+networks:
+  backend:
+    driver: bridge
+  testing:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 175.20.222.0/24
